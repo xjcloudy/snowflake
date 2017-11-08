@@ -60,8 +60,16 @@ func (s *SnowFlake)Generate() int64 {
 	return id
 }
 // 特殊版本，可以根据指定的时间，node,seq生成
-func (s *SnowFlake)CustomGenerate(givenTime uint64, node uint16, seq uint16) {
-
+func (s *SnowFlake)CustomGenerate(givenTime int64, node uint16, seq uint16) {
+	//todo
+}
+//get node
+func (s *SnowFlake)GetNode() uint16 {
+	return s.node
+}
+// 从uuid 中得到时间
+func GetTime(uuid int64) int64 {
+	return (uuid >> 22) + EPOCH
 }
 
 var instance *SnowFlake
