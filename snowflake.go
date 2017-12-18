@@ -17,19 +17,18 @@ type SnowFlake struct {
 	seq      uint16
 	lastTime int64
 }
-//construct
-func getNewSnowFlake(node uint16) (*SnowFlake, error) {
-	var err error
-	if node > MAX_NODE {
-		err = errors.New("node ")
-	}
 
-	return &SnowFlake{
-		node:node,
+var (
+	mu sync.Mutex
+	onlySnowFlake *SnowFlake
+)
+
+func init() {
+	onlySnowFlake = &SnowFlake{
+		node:0,
 		seq:0,
 		lastTime:0,
-	}, err
-
+	}
 }
 
 // 普通版本，根据当前时间来生成
@@ -72,19 +71,22 @@ func GetTime(uuid int64) int64 {
 	return (uuid >> 22) + EPOCH
 }
 
-var instance *SnowFlake
-var mu sync.Mutex
 
 //singleton
-func GetInstance(node uint16) (*SnowFlake, error) {
+func GetInstance(nodenum uint16) (*SnowFlake, error) {
+	var err error
 
 	mu.Lock()
 	defer mu.Unlock()
-	var err error
-	if instance == nil {
-		instance, err = getNewSnowFlake(node)
+	if onlySnowFlake.node == 0 {
+		if nodenum > MAX_NODE {
+			err = errors.New("max node num is 1023 ")
+			return nil, err
+		} else {
+			onlySnowFlake.node = nodenum;
+		}
 
 	}
-	return instance, err
+	return onlySnowFlake, err;
 }
 
